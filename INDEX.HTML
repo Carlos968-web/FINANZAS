@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Panettones 2026 PRO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #2563eb; --bg: #f1f5f9; --text-main: #0f172a; --text-sub: #64748b; --danger: #ef4444; --success: #22c55e; --warning: #f59e0b; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text-main); }
+        .header { background: white; padding: 10px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; gap: 10px; margin-top: 10px; }
+        .nav-tabs button { flex: 1; padding: 8px; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; background: #e2e8f0; color: var(--text-sub); }
+        .nav-tabs button.active { background: var(--primary); color: white; }
+        #searchDeuda { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #e2e8f0; border-radius: 8px; display: none; box-sizing: border-box; font-size: 13px; }
+        .filtros-box { padding: 10px; background: #fff; display: flex; gap: 5px; flex-wrap: wrap; border-bottom: 1px solid #e2e8f0; }
+        .resumen-box { display: flex; background: #fff; padding: 10px; border-bottom: 2px solid var(--primary); justify-content: space-around; }
+        .resumen-item { text-align: center; flex: 1; }
+        .resumen-label { font-size: 9px; color: var(--text-sub); font-weight: bold; text-transform: uppercase; }
+        .resumen-val { font-weight: 800; font-size: 13px; }
+        .list { padding: 8px; padding-bottom: 80px; }
+        .card { background: white; padding: 12px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #e2e8f0; }
+        .card-deuda { border-left: 4px solid var(--danger); flex-direction: column; align-items: flex-start; }
+        .row-deuda { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .saldo-tag { color: var(--danger); font-weight: 900; font-size: 15px; }
+        .btn-ws { background: #25d366; color: white; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .historial { width: 100%; margin-top: 8px; border-top: 1px dashed #cbd5e1; padding-top: 8px; font-size: 11px; color: var(--text-sub); }
+        .h-item { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .info-col { flex: 2; overflow: hidden; }
+        .cli-name { font-weight: 700; font-size: 13px; color: var(--text-main); display: block; text-transform: uppercase; }
+        .cli-details { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
+        .data-col { flex: 1.5; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+        .amount { font-weight: 800; font-size: 13px; }
+        .btn-del { color: #cbd5e1; background: none; border: none; padding: 5px; font-size: 14px; }
+        .input-box { position: relative; margin-bottom: 10px; }
+        .sug-box { position: absolute; width: 100%; background: white; border: 1px solid #ddd; border-radius: 8px; z-index: 200; max-height: 140px; overflow-y: auto; display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .sug-item { padding: 10px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 12px; cursor: pointer; }
+        .tag-new { color: var(--success); font-weight: bold; font-size: 9px; background: #f0fdf4; padding: 2px 4px; border-radius: 4px; }
+        .fab { position: fixed; bottom: 20px; right: 20px; width: 56px; height: 56px; background: var(--primary); color: white; border-radius: 50%; border: none; font-size: 24px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); z-index: 50; }
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.7); align-items:center; justify-content:center; z-index:300; backdrop-filter: blur(2px); }
+        .modal-body { background:white; width: 85%; max-width: 380px; padding: 20px; border-radius: 16px; max-height: 90vh; overflow-y: auto; }
+        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; }
+        #loading { display:none; text-align:center; font-size: 10px; color: var(--primary); font-weight: bold; margin-top: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2 style="margin:0; font-size:16px; text-align:center; color:var(--primary);">CONTROL PANETTONES</h2>
+    <div class="nav-tabs">
+        <button id="tabMov" class="active" onclick="cambiarTab('movs')"><i class="fa-solid fa-list"></i> MOVIMENTOS</button>
+        <button id="tabDeuda" onclick="cambiarTab('deudas')"><i class="fa-solid fa-address-book"></i> CXC CLIENTES</button>
+    </div>
+    
+    <div id="filtrosMovs" class="filtros-box">
+        <input type="date" id="filtroFecha" class="form-control" style="flex: 1.2; margin:0; font-size: 11px;" onchange="aplicarFiltros()">
+        <select id="filtroBanco" class="form-control" style="flex: 1; margin:0;" onchange="aplicarFiltros()">
+            <option value="">BANCO</option>
+            <option>CAIXA</option><option>EFECTIVO</option><option>NEON</option><option>M.LIVRE</option><option>CTAS POR COBRAR</option>
+        </select>
+        <select id="filtroTipo" class="form-control" style="flex: 1; margin:0;" onchange="aplicarFiltros()">
+            <option value="">TIPO</option><option value="ENTRADA">ENTR.</option><option value="SALIDA">SALI.</option>
+        </select>
+        <button onclick="limpiarFiltros()" style="width:40px; border-radius:8px; border:1px solid #ddd; background:#f8fafc;"><i class="fa-solid fa-filter-circle-xmark"></i></button>
+    </div>
+
+    <div id="resumenTotales" class="resumen-box">
+        <div class="resumen-item mov-res"><div class="resumen-label">ENTRADAS</div><div id="totEntradas" class="resumen-val" style="color:var(--success)">R$ 0,00</div></div>
+        <div class="resumen-item mov-res"><div class="resumen-label">SALIDAS</div><div id="totSalidas" class="resumen-val" style="color:var(--danger)">R$ 0,00</div></div>
+        <div class="resumen-item mov-res"><div class="resumen-label">SALDO</div><div id="totSaldo" class="resumen-val" style="color:var(--primary)">R$ 0,00</div></div>
+        <div id="cxcResumen" class="resumen-item" style="display:none; width: 100%;">
+            <div class="resumen-label">TOTAL CUENTAS POR COBRAR</div>
+            <div id="totCXC" class="resumen-val" style="color:var(--danger); font-size: 16px;">R$ 0,00</div>
+        </div>
+    </div>
+    <input type="text" id="searchDeuda" placeholder="🔍 Buscar cliente..." onkeyup="renderizarDeudores(rSesion)">
+    <div id="loading">SINCRONIZANDO...</div>
+</div>
+
+<div class="list" id="contenedor"></div>
+
+<button class="fab" onclick="abrirModal()"><i class="fa-solid fa-plus"></i></button>
+
+<div class="modal" id="modal">
+    <div class="modal-body">
+        <h3 style="margin-top:0; text-align:center;">Novo Registro</h3>
+        <label style="font-size:11px; font-weight:bold;">DATA</label>
+        <input type="date" id="fecha" class="form-control">
+        <label style="font-size:11px; font-weight:bold;">CLIENTE</label>
+        <div class="input-box">
+            <input type="text" id="cliente" class="form-control" onkeyup="buscarSug(this.value, 'boxCli', listaCli, 'cliente')" autocomplete="off">
+            <div id="boxCli" class="sug-box"></div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <div style="flex: 2;"><label style="font-size:11px; font-weight:bold;">CONCEITO</label><input type="text" id="concepto" placeholder="Pão de mel" class="form-control"></div>
+            <div style="flex: 1;"><label style="font-size:11px; font-weight:bold;">VALOR R$</label><input type="number" id="monto" class="form-control"></div>
+        </div>
+        <label style="font-size:11px; font-weight:bold;">CONTA (LOCAL)</label>
+        <div class="input-box">
+            <input type="text" id="cuenta" class="form-control" onkeyup="buscarSug(this.value, 'boxCue', listaCue, 'cuenta')" autocomplete="off">
+            <div id="boxCue" class="sug-box"></div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <div style="flex: 1;"><label style="font-size:11px; font-weight:bold;">BANCO</label><select id="banco" class="form-control"><option>CAIXA</option><option>EFECTIVO</option><option>NEON</option><option>M.LIVRE</option><option>CTAS POR COBRAR</option></select></div>
+            <div style="flex: 1;"><label style="font-size:11px; font-weight:bold;">CATEGORIA</label><select id="categoria" class="form-control"><option>ENTRADA</option><option>SALIDA</option></select></div>
+        </div>
+        <label style="font-size:11px; font-weight:bold;">PAGO?</label>
+        <select id="pagado" class="form-control"><option value="SÍ">SÍ</option><option value="NO">NO</option></select>
+        <button onclick="enviar()" id="btnG" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:10px; font-weight:bold;">SALVAR</button>
+        <button onclick="cerrarModal()" style="width:100%; background:none; border:none; color:var(--text-sub); margin-top:12px;">Cancelar</button>
+    </div>
+</div>
+
+<script>
+    const URL_API = "https://script.google.com/macros/s/AKfycbzoKAoGGdg-760pOkh24k7HxoJwKV-75jDz5xyQT8Y28G2fwaE3t4sg8hNhf8717wx86w/exec"; 
+    let rSesion = [], listaCli = [], listaCue = [], vistaActual = 'movs';
+
+    // FUNCIÓN DE CORRECCIÓN: Solo ajusta si detecta que Google mandó las 23:00 (error de zona horaria)
+    function obtenerFechaCorrecta(isoString) {
+        if(!isoString) return null;
+        let d = new Date(isoString);
+        // Si la hora es 23 o 22, es casi seguro un desfase. Saltamos al día siguiente.
+        if (d.getHours() >= 22) {
+            d.setHours(d.getHours() + 3);
+        }
+        return d;
+    }
+
+    function formatearFechaLocal(isoString) {
+        const d = obtenerFechaCorrecta(isoString);
+        if(!d) return "--/--/----";
+        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    }
+
+    function isoParaFiltro(isoString) {
+        const d = obtenerFechaCorrecta(isoString);
+        if(!d) return "";
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function abrirModal() {
+        document.getElementById('modal').style.display = 'flex';
+        const d = new Date();
+        document.getElementById('fecha').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function cerrarModal() { document.getElementById('modal').style.display = 'none'; }
+
+    async function cargarTodo() {
+        document.getElementById('loading').style.display = 'block';
+        try {
+            const response = await fetch(URL_API, { method: 'POST', body: JSON.stringify({accion:'leerTodo'}) });
+            const data = await response.json();
+            rSesion = data.movs || [];
+            listaCli = data.clientes || [];
+            listaCue = data.cuentas || [];
+            cambiarTab(vistaActual);
+        } catch(e) { console.error(e); }
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    function cambiarTab(tab) {
+        vistaActual = tab;
+        document.getElementById('tabMov').className = tab === 'movs' ? 'active' : '';
+        document.getElementById('tabDeuda').className = tab === 'deudas' ? 'active' : '';
+        document.getElementById('searchDeuda').style.display = tab === 'deudas' ? 'block' : 'none';
+        document.getElementById('filtrosMovs').style.display = tab === 'movs' ? 'flex' : 'none';
+        if(tab === 'movs') {
+            document.querySelectorAll('.mov-res').forEach(el => el.style.display = 'block');
+            document.getElementById('cxcResumen').style.display = 'none';
+            aplicarFiltros();
+        } else {
+            document.querySelectorAll('.mov-res').forEach(el => el.style.display = 'none');
+            document.getElementById('cxcResumen').style.display = 'block';
+            renderizarDeudores(rSesion);
+        }
+    }
+
+    function aplicarFiltros() {
+        const fSel = document.getElementById('filtroFecha').value;
+        const bSel = document.getElementById('filtroBanco').value;
+        const tSel = document.getElementById('filtroTipo').value;
+        let sE = 0, sS = 0;
+        const filtered = rSesion.filter(f => {
+            const fFila = isoParaFiltro(f[1]);
+            const monto = Number(f[6] || 0);
+            if((!fSel || fFila === fSel) && (!bSel || f[9] === bSel) && (!tSel || f[10] === tSel)) {
+                if(f[10] === "ENTRADA") sE += monto;
+                else if(f[10] === "SALIDA") sS += monto;
+                return true;
+            }
+            return false;
+        });
+        document.getElementById('totEntradas').innerText = `R$ ${sE.toFixed(2)}`;
+        document.getElementById('totSalidas').innerText = `R$ ${sS.toFixed(2)}`;
+        document.getElementById('totSaldo').innerText = `R$ ${(sE - sS).toFixed(2)}`;
+        renderizarMovs(filtered);
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('filtroFecha').value = "";
+        document.getElementById('filtroBanco').value = "";
+        document.getElementById('filtroTipo').value = "";
+        aplicarFiltros();
+    }
+
+    function renderizarMovs(data) {
+        const cont = document.getElementById('contenedor');
+        cont.innerHTML = "";
+        data.slice().reverse().forEach(f => {
+            const card = document.createElement('div');
+            card.className = "card";
+            const esS = f[10] === "SALIDA";
+            const icon = (f[9]==="CTAS POR COBRAR" && f[11]==="NO") ? '<i class="fa-solid fa-hand-holding-dollar" style="color:var(--warning)"></i>' : (f[11]==='SÍ' ? '<i class="fa-solid fa-circle-check" style="color:var(--success)"></i>' : '');
+            card.innerHTML = `<div class="info-col"><span class="cli-name">${f[2]}</span><span class="cli-details">${formatearFechaLocal(f[1])} | ${f[4]} | ${f[9]}</span></div><div class="data-col"><span class="amount" style="color:${esS?'var(--danger)':'var(--primary)'}">${esS?'-':''} R$ ${Number(f[6]).toFixed(2)}</span>${icon}<button class="btn-del" onclick="eliminar('${f[2]}',${f[6]})"><i class="fa-solid fa-trash-can"></i></button></div>`;
+            cont.appendChild(card);
+        });
+    }
+
+    function renderizarDeudores(data) {
+        const query = document.getElementById('searchDeuda').value.toLowerCase();
+        const cont = document.getElementById('contenedor');
+        cont.innerHTML = "";
+        const res = {};
+        let totalCXC = 0;
+        data.forEach(f => {
+            const cli = f[2];
+            const conc = (f[4] || "").toUpperCase();
+            if(!res[cli]) res[cli] = { saldo: 0, items: [], ws: "" };
+            const fShow = formatearFechaLocal(f[1]);
+            const monto = Number(f[6] || 0);
+            if(f[9] === "CTAS POR COBRAR") {
+                res[cli].saldo += monto;
+                res[cli].items.push(`<div class="h-item"><span>${fShow} - ${f[4]}</span><span>+${monto.toFixed(2)}</span></div>`);
+                res[cli].ws += `%0A- ${fShow}: ${f[4]} (R$ ${monto.toFixed(2)})`;
+            }
+            if(conc.includes("ABONO")) {
+                res[cli].saldo -= monto;
+                res[cli].items.push(`<div class="h-item" style="color:var(--success)"><span>${fShow} - ABONO</span><span>-${monto.toFixed(2)}</span></div>`);
+                res[cli].ws += `%0A- ${fShow}: ABONO (-R$ ${monto.toFixed(2)})`;
+            }
+        });
+        Object.keys(res).forEach(cli => {
+            if(res[cli].saldo <= 0 || (query && !cli.toLowerCase().includes(query))) return;
+            totalCXC += res[cli].saldo;
+            const card = document.createElement('div');
+            card.className = "card card-deuda";
+            const msg = `Olá *${cli}*, detalhe da conta:${res[cli].ws}%0A%0A*TOTAL: R$ ${res[cli].saldo.toFixed(2)}*`;
+            card.innerHTML = `<div class="row-deuda"><div class="info-col"><span class="cli-name">${cli}</span><span class="cli-details">PENDIENTE</span></div><div style="text-align:right"><div class="saldo-tag">R$ ${res[cli].saldo.toFixed(2)}</div><a href="https://wa.me/?text=${msg}" target="_blank" class="btn-ws"><i class="fa-brands fa-whatsapp"></i> Cobrar</a></div></div><div class="historial">${res[cli].items.join('')}</div>`;
+            cont.appendChild(card);
+        });
+        document.getElementById('totCXC').innerText = `R$ ${totalCXC.toFixed(2)}`;
+    }
+
+    function buscarSug(val, boxId, lista, inputId) {
+        const box = document.getElementById(boxId);
+        if (!val) { box.style.display = 'none'; return; }
+        box.innerHTML = ""; box.style.display = 'block';
+        if (!lista.map(x=>x.toLowerCase()).includes(val.toLowerCase())) {
+            const d = document.createElement('div'); d.className='sug-item';
+            d.innerHTML = `<span>"${val}"</span> <span class="tag-new">+ NOVO</span>`;
+            d.onclick = () => { document.getElementById(inputId).value=val; box.style.display='none'; };
+            box.appendChild(d);
+        }
+        lista.filter(x => x.toLowerCase().includes(val.toLowerCase())).forEach(n => {
+            const d = document.createElement('div'); d.className='sug-item'; d.innerText=n;
+            d.onclick = () => { document.getElementById(inputId).value=n; box.style.display='none'; };
+            box.appendChild(d);
+        });
+    }
+
+    async function enviar() {
+        const btn = document.getElementById('btnG');
+        const fVal = document.getElementById('fecha').value;
+        if(!fVal) return alert("Seleccione fecha");
+        btn.disabled = true; btn.innerText = "GRAVANDO...";
+        const fISO = fVal + 'T12:00:00'; // Forzamos mediodía para que Google nunca lo tire al día anterior
+        const d = { accion:'crear', fecha: fISO, cliente: document.getElementById('cliente').value, concepto: document.getElementById('concepto').value, monto: Number(document.getElementById('monto').value), cuenta: document.getElementById('cuenta').value, banco: document.getElementById('banco').value, categoria: document.getElementById('categoria').value, pagado: document.getElementById('pagado').value };
+        await fetch(URL_API, {method:'POST', mode:'no-cors', body: JSON.stringify(d)});
+        cerrarModal(); cargarTodo();
+        btn.disabled = false; btn.innerText = "SALVAR";
+    }
+
+    async function eliminar(cli, mon) { 
+        if(confirm("Eliminar?")) { 
+            await fetch(URL_API, {method:'POST', mode:'no-cors', body: JSON.stringify({accion:'eliminar', cliente:cli, monto:mon})}); 
+            cargarTodo(); 
+        } 
+    }
+    
+    document.addEventListener('click', (e) => { if(!e.target.closest('.input-box')) document.querySelectorAll('.sug-box').forEach(b=>b.style.display='none'); });
+    window.onload = cargarTodo;
+</script>
+</body>
+</html>

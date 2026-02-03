@@ -1,6 +1,6 @@
 // CONFIGURACIÓN: La puerta de enlace con tu Google Sheets
-const URL_API = "https://script.google.com/macros/s/AKfycbzoKAoGGdg-760pOkh24k7HxoJwKV-75jDz5xyQT8Y28G2fwaE3t4sg8hNhf8717wx86w/exec";
-
+const URL_API = "https://script.google.com/macros/s/AKfycbzoKAoGGdg-760pOkh24k7HxoJwKV-75jDz5xyQT8Y28G2fwaE3t4sg8hNhf8717wx86w/exec"; 
+    
 // VARIABLES GLOBALES (Memoria de la app)
 let rSesion = []; // Aquí guardaremos todos los movimientos
 

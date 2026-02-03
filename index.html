@@ -2,47 +2,52 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bakery Pro + Finanzas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Control Panettones PRO</title>
+
     <link rel="stylesheet" href="css/estilos.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div id="loading">SINCRO...</div>
+<div class="header">
+    <h2 id="titulo-principal">CONTROL PANETTONES</h2>
+    
+    <div class="nav-tabs">
+        <button id="tabMov" class="active" onclick="cambiarTab('movs')"><i class="fa-solid fa-list"></i> MOVIMENTOS</button>
+        <button id="tabDeuda" onclick="cambiarTab('deudas')"><i class="fa-solid fa-address-book"></i> CXC CLIENTES</button>
+    </div>
+    
+    <div id="filtrosMovs" class="filtros-box">
+        <input type="date" id="filtroFecha" class="form-control" onchange="aplicarFiltros()">
+        <select id="filtroBanco" class="form-control" onchange="aplicarFiltros()">
+            <option value="">BANCO</option>
+            <option>CAIXA</option><option>EFECTIVO</option><option>NEON</option>
+        </select>
+        <button onclick="limpiarFiltros()"><i class="fa-solid fa-filter-circle-xmark"></i></button>
+    </div>
 
-    <section id="sec-movs" class="app-section">
-        <div class="header"><h2>Mis Movimientos</h2></div>
-        <div id="resumenTotales" class="resumen-box">
-            <div class="resumen-item"><div class="resumen-label">SALDO</div><div id="totSaldo" class="resumen-val">R$ 0,00</div></div>
+    <div id="resumenTotales" class="resumen-box">
+        <div class="resumen-item mov-res"><div class="resumen-label">ENTRADAS</div><div id="totEntradas" class="resumen-val success">R$ 0,00</div></div>
+        <div id="cxcResumen" class="resumen-item" style="display:none;">
+            <div class="resumen-label">TOTAL CXC</div>
+            <div id="totCXC" class="resumen-val danger">R$ 0,00</div>
         </div>
-        <div class="list" id="contenedor-movs"></div>
-    </section>
+    </div>
+    
+    <input type="text" id="searchDeuda" placeholder="🔍 Buscar cliente..." onkeyup="renderizarDeudores()">
+    <div id="loading">SINCRONIZANDO...</div>
+</div>
 
-    <section id="sec-recetas" class="app-section" style="display:none;">
-        <div class="header"><h2>Maestro Panadero</h2></div>
-        <div class="p-20">
-            <div class="card">
-                <label>🥖 Seleccionar Receta</label>
-                <select id="selector" onchange="calcularReceta()"></select>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <input type="number" id="peso" value="500" placeholder="Peso g" oninput="calcularReceta()">
-                    <input type="number" id="cantidad" value="1" placeholder="Cant." oninput="calcularReceta()">
-                </div>
-            </div>
-            <div id="resultado-receta" class="card">
-                <div id="hidratacionInfo" class="badge">Hidratación: --%</div>
-                <div id="lista-ingredientes"></div>
-            </div>
-        </div>
-    </section>
+<div class="list" id="contenedor"></div>
 
-    <nav class="bottom-nav">
-        <button onclick="verSeccion('movs')" class="nav-btn active"><i class="fa-solid fa-wallet"></i><span>Caja</span></button>
-        <button onclick="abrirModal()" class="nav-btn"><div class="fab-plus"><i class="fa-solid fa-plus"></i></div></button>
-        <button onclick="verSeccion('recetas')" class="nav-btn"><i class="fa-solid fa-wheat-awn"></i><span>Recetas</span></button>
-    </nav>
+<button class="fab" onclick="abrirModal()"><i class="fa-solid fa-plus"></i></button>
 
-    <script src="js/app.js"></script>
+<div class="modal" id="modal">
+    </div>
+
+<script src="js/app.js"></script>
+
 </body>
 </html>

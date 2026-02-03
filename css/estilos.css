@@ -1,1 +1,23 @@
+:root {
+    --primary: #2563eb;
+    --danger: #ef4444;
+    --success: #22c55e;
+}
+
+/* El cuerpo de la app */
+body {
+    background-color: var(--bg);
+    margin: 0;
+    -webkit-tap-highlight-color: transparent; /* Evita el cuadro azul al tocar en móvil */
+}
+
+/* El botón flotante (FAB) */
+.fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    border-radius: 50%;
+    /* Sombra para dar profundidad */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
 
